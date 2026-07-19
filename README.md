@@ -87,6 +87,27 @@ Für eine echte Veröffentlichung brauchst du eine signierte Release-APK/-AAB:
 
 ---
 
+## Web-Vorschau im Browser über GitHub Pages
+
+Der mitgelieferte Workflow **„Web-Vorschau auf GitHub Pages veröffentlichen"** baut die App
+automatisch und veröffentlicht sie als Webseite – nützlich, um die App direkt im Browser zu
+testen, ohne sie auf einem Android-Gerät zu installieren.
+
+**Einmalige Einrichtung (wichtig, sonst bleibt die Seite leer):**
+
+1. Im Repository zu **Settings → Pages** gehen.
+2. Bei **„Build and deployment" → „Source"** auf **„GitHub Actions"** umstellen
+   (nicht „Deploy from a branch" — das würde nur den unveränderten Quellcode anzeigen,
+   der Browser kann `.jsx`-Dateien nicht direkt ausführen).
+3. Erneut auf `main` pushen (oder den Workflow manuell über „Actions" → „Run workflow" starten).
+4. Nach Abschluss erscheint der Link zur Seite unter **Settings → Pages** ganz oben
+   (Format: `https://<benutzername>.github.io/<repo-name>/`).
+
+Falls die Seite bereits über „Deploy from a branch" eingerichtet war und deshalb leer blieb:
+genau dieser Schritt 2 (Umstellung auf „GitHub Actions") behebt es.
+
+---
+
 ## Projektstruktur
 
 ```
