@@ -1,9 +1,18 @@
-name: Android APK bauen
+name: Web-Vorschau auf GitHub Pages veröffentlichen
 
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -17,35 +26,27 @@ jobs:
         with:
           node-version: 20
 
-      - name: Java einrichten
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-
-      - name: Android SDK einrichten
-        uses: android-actions/setup-android@v3
-
       - name: Abhängigkeiten installieren
         run: npm install
 
       - name: Web-App bauen
         run: npm run build
 
-      - name: Capacitor Android-Projekt erzeugen
-        run: |
-          npx cap add android
-          npx cap sync android
+      - name: GitHub Pages vorbereiten
+        uses: actions/configure-pages@v5
 
-      - name: Gradle ausführbar machen
-        run: chmod +x android/gradlew
-
-      - name: Debug-APK bauen
-        working-directory: android
-        run: ./gradlew assembleDebug
-
-      - name: APK als Artefakt hochladen
-        uses: actions/upload-artifact@v4
+      - name: Build-Ordner als Pages-Artefakt hochladen
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: vermoegens-cockpit-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Auf GitHub Pages veröffentlichen
+        id: deployment
+        uses: actions/deploy-pages@v4
