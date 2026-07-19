@@ -1,64 +1,116 @@
-[README.txt](https://github.com/user-attachments/files/29677529/README.txt)
-STROMTARIF-COCKPIT — Robuste Standalone-Version
-===================================================
+# Vermögens-Cockpit
 
-WAS IST ANDERS ALS VORHER?
-----------------------------
-Die App ist jetzt zu 100% vorkompiliert (React, ReactDOM und die App-Logik
-liegen alle DIREKT in index.html, kein CDN, kein Babel-im-Browser mehr).
-Das entfernt die komplette Fehlerquelle der letzten Versuche (der
-"import"-SyntaxError kann so gar nicht mehr auftreten).
+Persönlicher Geldmanager: CSV-Kontoauszüge importieren, automatisch kategorisieren,
+Monats-/Jahres-/Mehrjahresvergleiche, Prognosen und ein paar nützliche Werkzeuge
+(Taschenrechner, Währungsrechner, Sparziel- und Kreditrechner).
 
-Ich habe diese Datei zusätzlich automatisiert in einer echten
-Browser-Engine (jsdom) gerendert und geprüft: 0 Laufzeitfehler,
-App rendert korrekt.
+Alle Daten bleiben lokal auf dem Gerät (im Browser-Storage bzw. in der App)
+und werden nirgendwo hochgeladen.
 
+---
 
-SCHRITT 1 — SOFORT TESTEN (ohne Hosting, ohne Internet-Voraussetzung
-für die App selbst)
-----------------------------------------------------------------------
-Doppelklick auf index.html -> öffnet sich direkt im Standardbrowser
-und funktioniert vollständig (Berechnung, Grafiken, Heatmap, alle Hebel).
-Einzige Ausnahme: Google-Fonts brauchen Internet für die hübsche
-Schrift — ohne Internet nutzt der Browser automatisch eine Standardschrift,
-die App bleibt aber voll funktionsfähig.
+## Option A: APK automatisch über GitHub Actions bauen (empfohlen, kein Android Studio nötig)
 
-Falls das bei dir schon funktioniert: du hast eine 100% funktionierende
-App. Für "installierbar als App auf dem Handy" oder "als APK" muss sie
-zusätzlich noch online gehostet werden (Schritt 2).
+1. Dieses Projekt in ein neues GitHub-Repository hochladen (z. B. per GitHub-Weboberfläche
+   „Upload files" oder per Git):
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial commit"
+   git branch -M main
+   git remote add origin https://github.com/<dein-benutzername>/<dein-repo>.git
+   git push -u origin main
+   ```
+2. Auf GitHub in deinem Repository auf den Tab **„Actions"** gehen. Der Workflow
+   „Android APK bauen" startet automatisch beim Push auf `main` (oder manuell über
+   „Run workflow").
+3. Wenn der Workflow durchgelaufen ist (dauert einige Minuten), auf den Workflow-Lauf
+   klicken → unten bei **„Artifacts"** liegt `vermoegens-cockpit-apk` zum Download bereit.
+   Das ist deine fertige `app-debug.apk`.
+4. Die APK aufs Android-Gerät übertragen und installieren (dort ggf. „Installation aus
+   unbekannten Quellen" erlauben, da die APK nicht aus dem Play Store stammt).
 
+Diese Debug-APK ist zum Selbst-Installieren und Testen gedacht. Für eine Veröffentlichung
+im Play Store braucht es zusätzlich eine signierte Release-Build (siehe unten).
 
-SCHRITT 2 — ALS INSTALLIERBARE APP HOSTEN (empfohlen: GitHub Pages
-statt Netlify — zuverlässiger, kein Passwortschutz-Feature das im Weg steht)
---------------------------------------------------------------------------------
-1. github.com -> account erstellen falls nötig -> "New repository"
-   -> Name z.B. "stromtarif-cockpit" -> Public -> Create repository
-2. Auf der neuen Repo-Seite: "uploading an existing file" anklicken
-3. ALLE Dateien aus diesem Ordner hochladen:
-   index.html, manifest.json, sw.js, icon-192.png, icon-512.png,
-   icon-512-maskable.png
-   (WICHTIG: die Dateien selbst hochladen, nicht in einen Unterordner
-   ziehen — sie müssen auf oberster Ebene des Repos liegen)
-4. "Commit changes"
-5. Im Repo: Settings -> Pages (linkes Menü) -> unter "Branch": "main"
-   und "/ (root)" auswählen -> Save
-6. Nach ca. 1-2 Minuten ist die Seite live unter:
-   https://DEINUSERNAME.github.io/stromtarif-cockpit/
-7. Diese URL im Handy-Browser öffnen -> Menü -> "App installieren"
-   (Android/Chrome) bzw. "Zum Home-Bildschirm" (iPhone/Safari)
+---
 
+## Option B: Lokal bauen (mit Android Studio)
 
-SCHRITT 3 — ECHTE .APK-DATEI (falls gewünscht)
--------------------------------------------------
-1. Die GitHub-Pages-URL aus Schritt 2 bei www.pwabuilder.com eingeben
-2. "Start" -> PWABuilder sollte jetzt Manifest + Service Worker finden
-   (beides liegt korrekt auf oberster Ebene)
-3. "Android" -> "Package for stores" -> .apk generieren lassen
+### Voraussetzungen
+- [Node.js](https://nodejs.org) (Version 18 oder neuer)
+- [Android Studio](https://developer.android.com/studio) (bringt Android SDK & JDK mit)
 
+### Schritte
+```bash
+# 1. Abhängigkeiten installieren
+npm install
 
-FALLS ES IMMER NOCH NICHT KLAPPT
------------------------------------
-Schick mir einfach die GitHub-Pages-URL (nicht die Netlify-URL) — GitHub
-Pages hat keine der Netlify-Eigenheiten (kein Passwortschutz-Feature,
-keine verschachtelten Ordner-Überraschungen beim Drag&Drop), daher sollte
-das jetzt zuverlässig funktionieren.
+# 2. Web-App bauen
+npm run build
+
+# 3. Android-Projekt erzeugen (nur beim ersten Mal nötig)
+npx cap add android
+
+# 4. Web-Build ins Android-Projekt übernehmen
+npx cap sync android
+
+# 5a. Entweder in Android Studio öffnen und dort bauen/starten:
+npx cap open android
+#    → in Android Studio: Build → Build Bundle(s) / APK(s) → Build APK(s)
+#    Die fertige Datei liegt danach unter:
+#    android/app/build/outputs/apk/debug/app-debug.apk
+
+# 5b. Oder direkt per Kommandozeile bauen (ohne Android Studio zu öffnen):
+cd android && ./gradlew assembleDebug
+```
+
+### Bei Änderungen am Code
+Nach jeder Änderung an `src/App.jsx` einfach erneut ausführen:
+```bash
+npm run build
+npx cap sync android
+```
+und die App in Android Studio neu bauen/starten.
+
+---
+
+## Release-Build für den Play Store (optional)
+
+Für eine echte Veröffentlichung brauchst du eine signierte Release-APK/-AAB:
+
+1. In Android Studio: **Build → Generate Signed Bundle / APK**
+2. Einen neuen Keystore erstellen (oder einen bestehenden verwenden) und die
+   Zugangsdaten **sicher aufbewahren** – ohne den Keystore kannst du spätere
+   Updates nicht mehr signieren.
+3. „Android App Bundle" (`.aab`) auswählen, das ist das von Google Play erwartete Format.
+
+---
+
+## Projektstruktur
+
+```
+├── src/
+│   ├── App.jsx                 → die eigentliche Cockpit-Anwendung
+│   ├── main.jsx                → React-Einstiegspunkt
+│   └── storage-polyfill.js     → speichert Daten lokal auf dem Gerät (localStorage)
+├── index.html
+├── vite.config.js
+├── capacitor.config.json       → App-Name, App-ID, Build-Ordner
+├── package.json
+└── .github/workflows/build-apk.yml → automatischer APK-Build bei jedem Push
+```
+
+## Technische Hinweise
+
+- **Speicherung**: Die App speichert alle Konten, Transaktionen, Regeln und
+  Einstellungen lokal auf dem Gerät (`localStorage` im Android-WebView).
+  Es gibt keinen Cloud-Sync — bei Deinstallation der App gehen die Daten verloren,
+  sofern kein Backup gemacht wurde.
+- **Internetzugriff**: Für zwei Funktionen wird eine Internetverbindung benötigt:
+  die Google-Schriftart „Roboto" (lädt beim ersten Start) und der Währungsrechner
+  (ruft Wechselkurse ab). Ohne Internet funktioniert der Rest der App weiterhin,
+  der Währungsrechner erlaubt dann die manuelle Eingabe eines Kurses.
+- **App-ID ändern**: Falls du die App unter einer eigenen Kennung veröffentlichen
+  willst, `appId` in `capacitor.config.json` **vor** dem ersten `npx cap add android`
+  anpassen (z. B. `com.deinname.geldmanager`).

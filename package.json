@@ -1,0 +1,30 @@
+{
+  "name": "vermoegens-cockpit",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Vermögens-Cockpit – persönlicher Geldmanager mit CSV-Import, Kategorisierung, Mehrjahresvergleich und Werkzeugen.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "cap:add:android": "npx cap add android",
+    "cap:sync": "npx cap sync android",
+    "cap:open:android": "npx cap open android",
+    "android:build-debug": "cd android && ./gradlew assembleDebug"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^2.12.7",
+    "lucide-react": "^0.383.0",
+    "papaparse": "^5.4.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.0",
+    "@capacitor/core": "^6.1.2",
+    "@capacitor/cli": "^6.1.2",
+    "@capacitor/android": "^6.1.2"
+  }
+}
